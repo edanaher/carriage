@@ -68,7 +68,11 @@ public class Main {
            copy(upload, temp);
            compile(temp);
            String testOutput = test(temp);
-           report(testOutput, temp);
+           if(!report(testOutput, temp)) {
+             ctx.contentType("text/plain");
+             ctx.result("Please set your name on the first line of the file\n");
+             return;
+           }
 
            String studentRep = studentReport(testOutput, temp);
            ctx.contentType("text/plain");
@@ -91,7 +95,10 @@ public class Main {
     Pattern pattern = Pattern.compile("^//\\s*(\\S+)");
     Matcher matcher = pattern.matcher(codefile);
     if (matcher.find()) {
-      return matcher.group(1);
+      String name = matcher.group(1);
+      if (name.toLowerCase().equals("firstnamelastname"))
+        return null;
+      return name;
     }
 
     throw new IllegalArgumentException("No student identifier found");
@@ -155,7 +162,7 @@ public class Main {
     return result;
   }
 
-  private static void report(String testOutput, String workspace) throws Exception {
+  private static boolean report(String testOutput, String workspace) throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output");
@@ -168,6 +175,8 @@ public class Main {
 
     String code = Files.readString(Paths.get(workspace, SUBMISSION_FILE_NAME));
     String sn = extractStudentNumber(code);
+    if (sn == null)
+      return false;
 
     String date = DATE_FORMAT.format(new Date());
 
@@ -184,6 +193,7 @@ public class Main {
 
 
     save(sn, report, workspace);
+    return true;
   }
 
 
