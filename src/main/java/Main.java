@@ -231,9 +231,13 @@ public class Main {
     // slight sanity check on the directory to create...
     sn = sn.replaceAll("[^a-zA-Z0-9]", "_");
 
+    File basedir = new File("submissions/");
+    if (!basedir.exists())
+      basedir.mkdir();
+
     File dir = null;
     for (int i = 0; i < 10_000; i++) {
-      dir = new File(sn + ((i == 0) ? "" : ("_" + i)));
+      dir = new File("submissions/" + sn + ((i == 0) ? "" : ("_" + i)));
       if (!dir.exists())
         break;
     }
