@@ -62,29 +62,28 @@ public class Main {
            String filename = upload.getFilename();
            if (!filename.endsWith(".java"))
              throw new SubmissionException("Uploaded file name must end in .java");
-           System.out.println(filename);
-           ctx.contentType("text/plain");
-           ctx.result("Okay\n");
-           return;
-           /*
-           if (!SUBMISSION_FILE_NAME.equals(filename))
-             throw new IllegalArgumentException("Uploaded file is not a Java source file for class " + SUBMISSION_CLASS_NAME);
+
+           String submissionName = filename.substring(0, filename.length() - ".java".length());
+
+           File assignmentDir = new File("assignments/" + submissionName + "/");
+           System.out.println(assignmentDir.toString());
+           if (!assignmentDir.exists())
+             throw new SubmissionException("Unknown assignment: " + submissionName);
 
            String temp = Files.createTempDirectory("autograder_").toString();
            // System.err.println(temp);
 
-           copy(upload, temp);
-           compile(temp);
-           String testOutput = test(temp);
-           report(testOutput, temp));
+           copy(upload, temp, submissionName);
+           compile(temp, submissionName);
+           String testOutput = test(temp, submissionName);
+           report(testOutput, temp);
 
            String studentRep = studentReport(testOutput, temp);
            ctx.contentType("text/plain");
-           ctx.result(studentRep);*/
-
+           ctx.result(studentRep);
          } catch (SubmissionException ex) {
            ctx.contentType("text/plain");
-           ctx.result("Error: " + ex.getMessage() + ".\n");
+           ctx.result("Error: " + ex.getMessage() + "\n");
          } catch (Exception ex) {
            ex.printStackTrace(System.err);
 
@@ -112,7 +111,7 @@ public class Main {
   }
 
   // copy the uploaded file and any other files necessary for compilation and testing
-  private static void copy(UploadedFile upload, String directory) throws Exception {
+  private static void copy(UploadedFile upload, String directory, String submissionName) throws Exception {
     // System.err.println("Copying in " + directory);
 
     // copy the submission to the work directory
@@ -120,9 +119,10 @@ public class Main {
     FileUtil.streamToFile(upload.getContent(), submission);
 
     // copy the test to the work directory
-    String test = Paths.get(directory, TEST_FILE_NAME).toString();
-    FileUtil.streamToFile(resource("META-INF/src/" + TEST_FILE_NAME), test);
+    String test = Paths.get(directory, submissionName + "Test.java").toString();
+    Files.copy(new File("assignments/" + submissionName + "/" + submissionName + "Test.java").toPath(), new File(test).toPath());
 
+    // TODO(edanaher): What exactly is this doing?
     // copy the dependencies to the work directory
     InputStream in = resource("META-INF/lib");
     BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -132,14 +132,14 @@ public class Main {
     }
   }
 
-  private static String compile(String directory) throws Exception {
+  private static String compile(String directory, String submissionName) throws Exception {
     // System.err.println("Compiling in " + directory);
 
     ProcessBuilder pb = new ProcessBuilder();
     if (OS.contains("win"))
       pb.command("javac", "-cp", ".;*", "*.java");
     else
-      pb.command("javac", "-cp", ".:*", SUBMISSION_FILE_NAME, TEST_FILE_NAME);
+      pb.command("javac", "-cp", ".:*", submissionName + ".java", submissionName + "Test.java");
     pb.directory(new File(directory));
     pb.redirectErrorStream(true);
     Process process = pb.start();
@@ -149,14 +149,14 @@ public class Main {
     return result;
   }
 
-  private static String test(String directory) throws Exception {
+  private static String test(String directory, String submissionName) throws Exception {
     // System.err.println("Testing in " + directory);
 
     ProcessBuilder pb = new ProcessBuilder();
     pb.command("java",
         "-jar", "junit-platform-console-standalone-1.7.0.jar",
         "-cp", ".",
-        "-c", TEST_CLASS_NAME,
+        "-c", submissionName + "Test.java",
         "--disable-ansi-colors", "--disable-banner",
         "--details=summary", "--details-theme=ascii"
     );
@@ -172,7 +172,7 @@ public class Main {
   private static void report(String testOutput, String workspace) throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
-      throw new IllegalStateException("Unable to match test output");
+      throw new IllegalStateException("Unable to match test output:" + testOutput);
 
     int passed = Integer.parseInt(matcher.group(1));
     int failed = Integer.parseInt(matcher.group(2));
