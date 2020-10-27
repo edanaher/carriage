@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import carriage.SubmissionException;
 
 public class Main {
 
@@ -53,12 +54,19 @@ public class Main {
          try {
            UploadedFile upload = ctx.uploadedFile("codefile");
            if (upload == null)
-             throw new IllegalArgumentException("No file was uploaded");
+             throw new SubmissionException("No file was uploaded");
 
            if (upload.getSize() > 10_000)
-             throw new IllegalArgumentException("Uploaded file is too large");
+             throw new SubmissionException("Uploaded file is too large");
 
            String filename = upload.getFilename();
+           if (!filename.endsWith(".java"))
+             throw new SubmissionException("Uploaded file name must end in .java");
+           System.out.println(filename);
+           ctx.contentType("text/plain");
+           ctx.result("Okay\n");
+           return;
+           /*
            if (!SUBMISSION_FILE_NAME.equals(filename))
              throw new IllegalArgumentException("Uploaded file is not a Java source file for class " + SUBMISSION_CLASS_NAME);
 
@@ -76,8 +84,11 @@ public class Main {
 
            String studentRep = studentReport(testOutput, temp);
            ctx.contentType("text/plain");
-           ctx.result(studentRep);
+           ctx.result(studentRep);*/
 
+         } catch (SubmissionException ex) {
+           ctx.contentType("text/plain");
+           ctx.result("Error: " + ex.getMessage() + ".\n");
          } catch (Exception ex) {
            ex.printStackTrace(System.err);
 
