@@ -156,7 +156,7 @@ public class Main {
     pb.command("java",
         "-jar", "junit-platform-console-standalone-1.7.0.jar",
         "-cp", ".",
-        "-c", submissionName + "Test.java",
+        "-c", submissionName + "Test",
         "--disable-ansi-colors", "--disable-banner",
         "--details=summary", "--details-theme=ascii"
     );
