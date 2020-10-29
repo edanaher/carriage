@@ -76,7 +76,7 @@ public class Main {
            copy(upload, temp, submissionName);
            compile(temp, submissionName);
            String testOutput = test(temp, submissionName);
-           report(testOutput, temp);
+           report(testOutput, temp, submissionName);
 
            String studentRep = studentReport(testOutput, temp);
            ctx.contentType("text/plain");
@@ -169,7 +169,7 @@ public class Main {
     return result;
   }
 
-  private static void report(String testOutput, String workspace) throws Exception {
+  private static void report(String testOutput, String workspace, String submissionName) throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output:" + testOutput);
@@ -197,7 +197,7 @@ public class Main {
     }
 
 
-    save(sn, report, workspace);
+    save(sn, report, workspace, submissionName);
   }
 
 
@@ -231,17 +231,22 @@ public class Main {
     return report;
   }
 
-  private static void save(String sn, String report, String workspace) throws Exception {
+  private static void save(String sn, String report, String workspace, String submissionName) throws Exception {
     // slight sanity check on the directory to create...
     sn = sn.replaceAll("[^a-zA-Z0-9]", "_");
 
-    File basedir = new File("submissions/");
+    File submissionsdir = new File("submissions/");
+    if (!submissionsdir.exists())
+      submissionsdir.mkdir();
+
+    String basedirName = "submissions/" + submissionName + "/";
+    File basedir = new File(basedirName);
     if (!basedir.exists())
       basedir.mkdir();
 
     File dir = null;
     for (int i = 0; i < 10_000; i++) {
-      dir = new File("submissions/" + sn + ((i == 0) ? "" : ("_" + i)));
+      dir = new File(basedirName + sn + ((i == 0) ? "" : ("_" + i)));
       if (!dir.exists())
         break;
     }
