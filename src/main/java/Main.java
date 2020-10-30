@@ -20,22 +20,12 @@ import carriage.SubmissionException;
 
 public class Main {
 
-  // the class name of the of the submission
-  private static final String SUBMISSION_CLASS_NAME = "ForLoopPractice";
-
-  // the class name of the test case
-  // this _should_ be SUBMISSION_CLASS_NAME + "Test"
-  // but at an absolute minimum, it *must* end in "Test"
-  private static final String TEST_CLASS_NAME = "ForLoopPracticeTest";
-
   // ----------------------------------------------
   // you shouldn't need to edit anything below here
   // ----------------------------------------------
 
-  private static final String SUBMISSION_FILE_NAME = SUBMISSION_CLASS_NAME + ".java";
-  private static final String TEST_FILE_NAME = TEST_CLASS_NAME + ".java";
   private static final Pattern TEST_OUTPUT_PATTERN = Pattern.compile("(\\d+) tests successful.*(\\d+) tests failed", Pattern.DOTALL);
-  private static final Pattern TEST_FAILURE_PATTERN = Pattern.compile("JUnit Jupiter:ForLoopPracticeTest:(.*?)\\(\\).*?expected: <(.*?)> but was: <(.*?)>", Pattern.DOTALL);
+  private static final Pattern TEST_FAILURE_PATTERN = Pattern.compile("JUnit Jupiter:[^:]*Test:(.*?)\\(\\).*?expected: <(.*?)> but was: <(.*?)>", Pattern.DOTALL);
   private static final String REPORT_TEMPLATE = "### %s submitted at %s\n* **Passed:** %d\n* **Failed:** %d\n* **Score:** %d%%\n";
   private static final String STUDENT_REPORT_TEMPLATE = "Submitted successfully for %s.\n* Passed: %d\n* Failed: %d\n* Score: %d%%\n";
   private static final String FAILURE_TEMPLATE = "* Failed test: %s\n  Expected: <%s>\n  Actual:   <%s>\n";
@@ -70,15 +60,16 @@ public class Main {
            if (!assignmentDir.exists())
              throw new SubmissionException("Unknown assignment: " + submissionName);
 
-           String temp = Files.createTempDirectory("autograder_").toString();
-           // System.err.println(temp);
+           String temp = Files.createTempDirectory("autograder_test").toString();
+           //new File("autograder_test").mkdirP);
+           //String temp = "autograder_test";
 
            copy(upload, temp, submissionName);
            compile(temp, submissionName);
            String testOutput = test(temp, submissionName);
            report(testOutput, temp, submissionName);
 
-           String studentRep = studentReport(testOutput, temp);
+           String studentRep = studentReport(testOutput, temp, submissionName);
            ctx.contentType("text/plain");
            ctx.result(studentRep);
          } catch (SubmissionException ex) {
@@ -180,7 +171,7 @@ public class Main {
     int score = (int) ((((double) passed) / ((double) (passed + failed))) * 100);
     // System.err.println("score: " + score);
 
-    String code = Files.readString(Paths.get(workspace, SUBMISSION_FILE_NAME));
+    String code = Files.readString(Paths.get(workspace, submissionName + ".java"));
     String sn = extractStudentNumber(code);
 
     String date = DATE_FORMAT.format(new Date());
@@ -201,7 +192,7 @@ public class Main {
   }
 
 
-  private static String studentReport(String testOutput, String workspace) throws Exception {
+  private static String studentReport(String testOutput, String workspace, String submissionName) throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output");
@@ -213,7 +204,7 @@ public class Main {
     int score = (int) ((((double) passed) / ((double) (passed + failed))) * 100);
     // System.err.println("score: " + score);
 
-    String code = Files.readString(Paths.get(workspace, SUBMISSION_FILE_NAME));
+    String code = Files.readString(Paths.get(workspace, submissionName + ".java"));
     String sn = extractStudentNumber(code);
 
     String date = DATE_FORMAT.format(new Date());
@@ -256,7 +247,7 @@ public class Main {
     if (!dir.mkdir())
       throw new IllegalStateException("Can't create directory to store submission");
 
-    Files.copy(Paths.get(workspace, SUBMISSION_FILE_NAME), Paths.get(dir.getAbsolutePath(), SUBMISSION_FILE_NAME));
+    Files.copy(Paths.get(workspace, submissionName + ".java"), Paths.get(dir.getAbsolutePath(), submissionName + ".java"));
     Files.writeString(Paths.get("report.md"), report, StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
     System.err.println("Submission received from " + sn + "\n" + report);
