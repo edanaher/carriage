@@ -44,6 +44,14 @@ public class Submission {
     workspace = ws;
   }
 
+  private String javaFileName() {
+    return assignmentName + ".java";
+  }
+
+  private String testFileName() {
+    return assignmentName + "Test.java";
+  }
+
   // copy the uploaded file and any other files necessary for compilation and testing
   public void copy(UploadedFile upload) throws Exception {
     // System.err.println("Copying in " + workspace);
@@ -53,8 +61,8 @@ public class Submission {
     FileUtil.streamToFile(upload.getContent(), submission);
 
     // copy the test to the work directory
-    String test = Paths.get(workspace, assignmentName + "Test.java").toString();
-    Files.copy(new File("assignments/" + assignmentName + "/" + assignmentName + "Test.java").toPath(), new File(test).toPath());
+    String test = Paths.get(workspace, testFileName()).toString();
+    Files.copy(new File("assignments/" + assignmentName + "/" + testFileName()).toPath(), new File(test).toPath());
 
     // copy the dependencies to the work directory
     // NOTE(edanaher): This used to be stored in target/classes/META-INF/lib and loaded as a resource, but
@@ -82,7 +90,7 @@ public class Submission {
     if (OS.contains("win"))
       pb.command("javac", "-cp", ".;*", "*.java");
     else
-      pb.command("javac", "-cp", ".:*", assignmentName + ".java", assignmentName + "Test.java");
+      pb.command("javac", "-cp", ".:*", javaFileName(), testFileName());
     pb.directory(new File(workspace));
     pb.redirectErrorStream(true);
     Process process = pb.start();
@@ -124,7 +132,7 @@ public class Submission {
     int score = (int) ((((double) passed) / ((double) (passed + failed))) * 100);
     // System.err.println("score: " + score);
 
-    String code = Files.readString(Paths.get(workspace, assignmentName + ".java"));
+    String code = Files.readString(Paths.get(workspace, javaFileName()));
     String sn = extractStudentNumber(code);
 
     String date = DATE_FORMAT.format(new Date());
@@ -157,7 +165,7 @@ public class Submission {
     int score = (int) ((((double) passed) / ((double) (passed + failed))) * 100);
     // System.err.println("score: " + score);
 
-    String code = Files.readString(Paths.get(workspace, assignmentName + ".java"));
+    String code = Files.readString(Paths.get(workspace, javaFileName()));
     String sn = extractStudentNumber(code);
 
     String date = DATE_FORMAT.format(new Date());
@@ -200,7 +208,7 @@ public class Submission {
     if (!dir.mkdir())
       throw new IllegalStateException("Can't create directory to store submission");
 
-    Files.copy(Paths.get(workspace, assignmentName + ".java"), Paths.get(dir.getAbsolutePath(), assignmentName + ".java"));
+    Files.copy(Paths.get(workspace, javaFileName()), Paths.get(dir.getAbsolutePath(), javaFileName()));
     Files.writeString(Paths.get("report.md"), report, StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
     System.err.println("Submission received from " + sn + "\n" + report);
