@@ -31,15 +31,18 @@ public class Submission {
   private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd MMMMMMMMMM yyyy hh:mma z");
   private static String OS = System.getProperty("os.name").toLowerCase();
 
+  private String assignmentName;
+
   static {
     DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("America/New_York"));
   }
 
-  public Submission() {
+  public Submission(String an) {
+    assignmentName = an;
   }
 
   // copy the uploaded file and any other files necessary for compilation and testing
-  public static void copy(UploadedFile upload, String directory, String submissionName) throws Exception {
+  public void copy(UploadedFile upload, String directory) throws Exception {
     // System.err.println("Copying in " + directory);
 
     // copy the submission to the work directory
@@ -47,8 +50,8 @@ public class Submission {
     FileUtil.streamToFile(upload.getContent(), submission);
 
     // copy the test to the work directory
-    String test = Paths.get(directory, submissionName + "Test.java").toString();
-    Files.copy(new File("assignments/" + submissionName + "/" + submissionName + "Test.java").toPath(), new File(test).toPath());
+    String test = Paths.get(directory, assignmentName + "Test.java").toString();
+    Files.copy(new File("assignments/" + assignmentName + "/" + assignmentName + "Test.java").toPath(), new File(test).toPath());
 
     // copy the dependencies to the work directory
     // NOTE(edanaher): This used to be stored in target/classes/META-INF/lib and loaded as a resource, but
@@ -69,14 +72,14 @@ public class Submission {
       throw new SubmissionException("Error copying dependencies.  Please ask course staff to restart the autograder.");
   }
 
-  public String compile(String directory, String submissionName) throws Exception {
+  public String compile(String directory) throws Exception {
     // System.err.println("Compiling in " + directory);
 
     ProcessBuilder pb = new ProcessBuilder();
     if (OS.contains("win"))
       pb.command("javac", "-cp", ".;*", "*.java");
     else
-      pb.command("javac", "-cp", ".:*", submissionName + ".java", submissionName + "Test.java");
+      pb.command("javac", "-cp", ".:*", assignmentName + ".java", assignmentName + "Test.java");
     pb.directory(new File(directory));
     pb.redirectErrorStream(true);
     Process process = pb.start();
@@ -86,14 +89,14 @@ public class Submission {
     return result;
   }
 
-  public String test(String directory, String submissionName) throws Exception {
+  public String test(String directory) throws Exception {
     // System.err.println("Testing in " + directory);
 
     ProcessBuilder pb = new ProcessBuilder();
     pb.command("java",
         "-jar", "junit-platform-console-standalone-1.7.0.jar",
         "-cp", ".",
-        "-c", submissionName + "Test",
+        "-c", assignmentName + "Test",
         "--disable-ansi-colors", "--disable-banner",
         "--details=summary", "--details-theme=ascii"
     );
@@ -106,7 +109,7 @@ public class Submission {
     return result;
   }
 
-  public void report(String testOutput, String workspace, String submissionName) throws Exception {
+  public void report(String testOutput, String workspace) throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output:" + testOutput);
@@ -117,7 +120,7 @@ public class Submission {
     int score = (int) ((((double) passed) / ((double) (passed + failed))) * 100);
     // System.err.println("score: " + score);
 
-    String code = Files.readString(Paths.get(workspace, submissionName + ".java"));
+    String code = Files.readString(Paths.get(workspace, assignmentName + ".java"));
     String sn = extractStudentNumber(code);
 
     String date = DATE_FORMAT.format(new Date());
@@ -134,11 +137,11 @@ public class Submission {
     }
 
 
-    save(sn, report, workspace, submissionName);
+    save(sn, report, workspace);
   }
 
 
-  public String studentReport(String testOutput, String workspace, String submissionName) throws Exception {
+  public String studentReport(String testOutput, String workspace) throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output");
@@ -150,7 +153,7 @@ public class Submission {
     int score = (int) ((((double) passed) / ((double) (passed + failed))) * 100);
     // System.err.println("score: " + score);
 
-    String code = Files.readString(Paths.get(workspace, submissionName + ".java"));
+    String code = Files.readString(Paths.get(workspace, assignmentName + ".java"));
     String sn = extractStudentNumber(code);
 
     String date = DATE_FORMAT.format(new Date());
@@ -168,7 +171,7 @@ public class Submission {
     return report;
   }
 
-  public void save(String sn, String report, String workspace, String submissionName) throws Exception {
+  public void save(String sn, String report, String workspace) throws Exception {
     // slight sanity check on the directory to create...
     sn = sn.replaceAll("[^a-zA-Z0-9]", "_");
 
@@ -176,7 +179,7 @@ public class Submission {
     if (!submissionsdir.exists())
       submissionsdir.mkdir();
 
-    String basedirName = "submissions/" + submissionName + "/";
+    String basedirName = "submissions/" + assignmentName + "/";
     File basedir = new File(basedirName);
     if (!basedir.exists())
       basedir.mkdir();
@@ -193,7 +196,7 @@ public class Submission {
     if (!dir.mkdir())
       throw new IllegalStateException("Can't create directory to store submission");
 
-    Files.copy(Paths.get(workspace, submissionName + ".java"), Paths.get(dir.getAbsolutePath(), submissionName + ".java"));
+    Files.copy(Paths.get(workspace, assignmentName + ".java"), Paths.get(dir.getAbsolutePath(), assignmentName + ".java"));
     Files.writeString(Paths.get("report.md"), report, StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
     System.err.println("Submission received from " + sn + "\n" + report);

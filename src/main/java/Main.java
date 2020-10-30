@@ -33,8 +33,6 @@ public class Main {
            if (!filename.endsWith(".java"))
              throw new SubmissionException("Uploaded file name must end in .java");
 
-           Submission submission = new Submission();
-
            String submissionName = filename.substring(0, filename.length() - ".java".length());
 
            File assignmentDir = new File("assignments/" + submissionName + "/");
@@ -46,10 +44,13 @@ public class Main {
            //new File("autograder_test").mkdirP);
            //String temp = "autograder_test";
 
-           submission.copy(upload, temp, submissionName);
-           submission.compile(temp, submissionName);
-           String testOutput = submission.test(temp, submissionName);
-           submission.report(testOutput, temp, submissionName);
+           Submission submission = new Submission(submissionName);
+
+
+           submission.copy(upload, temp);
+           submission.compile(temp);
+           String testOutput = submission.test(temp);
+           submission.report(testOutput, temp);
 
            String studentRep = submission.studentReport(testOutput, temp, submissionName);
            ctx.contentType("text/plain");
