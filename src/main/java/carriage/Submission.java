@@ -61,8 +61,9 @@ public class Submission {
     FileUtil.streamToFile(upload.getContent(), submission);
 
     // copy the test to the work directory
-    String test = Paths.get(workspace, testFileName()).toString();
-    Files.copy(new File("assignments/" + assignmentName + "/" + testFileName()).toPath(), new File(test).toPath());
+    String testTarget = Paths.get(workspace, testFileName()).toString();
+    String testSource = Paths.get("assignments/", assignmentName, testFileName()).toString();
+    Files.copy(new File(testSource).toPath(), new File(testTarget).toPath());
 
     // copy the dependencies to the work directory
     // NOTE(edanaher): This used to be stored in target/classes/META-INF/lib and loaded as a resource, but
