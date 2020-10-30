@@ -49,10 +49,10 @@ public class Main {
 
            submission.copy(upload);
            submission.compile();
-           String testOutput = submission.test();
-           submission.report(testOutput);
+           submission.test();
+           submission.report();
 
-           String studentRep = submission.studentReport(testOutput);
+           String studentRep = submission.studentReport();
            ctx.contentType("text/plain");
            ctx.result(studentRep);
          } catch (SubmissionException ex) {

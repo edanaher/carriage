@@ -33,6 +33,7 @@ public class Submission {
 
   private String assignmentName;
   private String workspace;
+  private String testOutput;
 
   static {
     DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("America/New_York"));
@@ -108,10 +109,11 @@ public class Submission {
 
     String result = new String(process.getInputStream().readAllBytes(), StandardCharsets.US_ASCII);
     process.waitFor();
+    testOutput = result;
     return result;
   }
 
-  public void report(String testOutput) throws Exception {
+  public void report() throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output:" + testOutput);
@@ -143,7 +145,7 @@ public class Submission {
   }
 
 
-  public String studentReport(String testOutput) throws Exception {
+  public String studentReport() throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output");
