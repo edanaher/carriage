@@ -107,6 +107,20 @@
                             <includeGroupIds>org.apiguardian,org.junit.jupiter,org.junit.platform,org.opentest4j</includeGroupIds>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-runtime-dependencies-outside-META-INF</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/runtime-dependencies</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <includeGroupIds>org.apiguardian,org.junit.jupiter,org.junit.platform,org.opentest4j</includeGroupIds>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

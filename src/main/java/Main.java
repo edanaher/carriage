@@ -4,11 +4,13 @@ import io.javalin.http.UploadedFile;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,6 +18,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import carriage.SubmissionException;
 
 public class Main {
@@ -113,14 +116,23 @@ public class Main {
     String test = Paths.get(directory, submissionName + "Test.java").toString();
     Files.copy(new File("assignments/" + submissionName + "/" + submissionName + "Test.java").toPath(), new File(test).toPath());
 
-    // TODO(edanaher): What exactly is this doing?
     // copy the dependencies to the work directory
-    InputStream in = resource("META-INF/lib");
-    BufferedReader br = new BufferedReader(new InputStreamReader(in));
-    String lib;
-    while ((lib = br.readLine()) != null) {
-      FileUtil.streamToFile(resource("META-INF/lib/" + lib), Paths.get(directory, lib).toString());
-    }
+    // NOTE(edanaher): This used to be stored in target/classes/META-INF/lib and loaded as a resource, but
+    // that directory has a tendency to disappear for no apparent reason on repl.it.  So just load them
+    // directly from target/runtime-dependencies and hope that this is more stable.
+    Stream<Path> dependencies = Files.list(Paths.get("target", "runtime-dependencies"));
+    Stream<Boolean> copySuccesses = dependencies.map(path -> {
+      try {
+        Files.copy(path, Paths.get(directory, path.getFileName().toString()));
+        return true;
+      } catch (IOException ex) {
+         ex.printStackTrace(System.err);
+         return false;
+      }
+    });
+    // Throwing an exception inside a lambda is ugly.  So check that everything succeeded.
+    if (copySuccesses.anyMatch(x -> {return !x; }))
+      throw new SubmissionException("Error copying dependencies.  Please ask course staff to restart the autograder.");
   }
 
   private static String compile(String directory, String submissionName) throws Exception {
