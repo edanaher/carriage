@@ -44,15 +44,15 @@ public class Main {
            //new File("autograder_test").mkdirP);
            //String temp = "autograder_test";
 
-           Submission submission = new Submission(submissionName);
+           Submission submission = new Submission(submissionName, temp);
 
 
-           submission.copy(upload, temp);
-           submission.compile(temp);
-           String testOutput = submission.test(temp);
-           submission.report(testOutput, temp);
+           submission.copy(upload);
+           submission.compile();
+           String testOutput = submission.test();
+           submission.report(testOutput);
 
-           String studentRep = submission.studentReport(testOutput, temp, submissionName);
+           String studentRep = submission.studentReport(testOutput);
            ctx.contentType("text/plain");
            ctx.result(studentRep);
          } catch (SubmissionException ex) {

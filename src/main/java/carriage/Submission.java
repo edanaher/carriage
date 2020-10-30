@@ -32,25 +32,27 @@ public class Submission {
   private static String OS = System.getProperty("os.name").toLowerCase();
 
   private String assignmentName;
+  private String workspace;
 
   static {
     DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("America/New_York"));
   }
 
-  public Submission(String an) {
+  public Submission(String an, String ws) {
     assignmentName = an;
+    workspace = ws;
   }
 
   // copy the uploaded file and any other files necessary for compilation and testing
-  public void copy(UploadedFile upload, String directory) throws Exception {
-    // System.err.println("Copying in " + directory);
+  public void copy(UploadedFile upload) throws Exception {
+    // System.err.println("Copying in " + workspace);
 
     // copy the submission to the work directory
-    String submission = Paths.get(directory, upload.getFilename()).toString();
+    String submission = Paths.get(workspace, upload.getFilename()).toString();
     FileUtil.streamToFile(upload.getContent(), submission);
 
     // copy the test to the work directory
-    String test = Paths.get(directory, assignmentName + "Test.java").toString();
+    String test = Paths.get(workspace, assignmentName + "Test.java").toString();
     Files.copy(new File("assignments/" + assignmentName + "/" + assignmentName + "Test.java").toPath(), new File(test).toPath());
 
     // copy the dependencies to the work directory
@@ -60,7 +62,7 @@ public class Submission {
     Stream<Path> dependencies = Files.list(Paths.get("target", "runtime-dependencies"));
     Stream<Boolean> copySuccesses = dependencies.map(path -> {
       try {
-        Files.copy(path, Paths.get(directory, path.getFileName().toString()));
+        Files.copy(path, Paths.get(workspace, path.getFileName().toString()));
         return true;
       } catch (IOException ex) {
          ex.printStackTrace(System.err);
@@ -72,15 +74,15 @@ public class Submission {
       throw new SubmissionException("Error copying dependencies.  Please ask course staff to restart the autograder.");
   }
 
-  public String compile(String directory) throws Exception {
-    // System.err.println("Compiling in " + directory);
+  public String compile() throws Exception {
+    // System.err.println("Compiling in " + workspace);
 
     ProcessBuilder pb = new ProcessBuilder();
     if (OS.contains("win"))
       pb.command("javac", "-cp", ".;*", "*.java");
     else
       pb.command("javac", "-cp", ".:*", assignmentName + ".java", assignmentName + "Test.java");
-    pb.directory(new File(directory));
+    pb.directory(new File(workspace));
     pb.redirectErrorStream(true);
     Process process = pb.start();
 
@@ -89,8 +91,8 @@ public class Submission {
     return result;
   }
 
-  public String test(String directory) throws Exception {
-    // System.err.println("Testing in " + directory);
+  public String test() throws Exception {
+    // System.err.println("Testing in " + workspace);
 
     ProcessBuilder pb = new ProcessBuilder();
     pb.command("java",
@@ -100,7 +102,7 @@ public class Submission {
         "--disable-ansi-colors", "--disable-banner",
         "--details=summary", "--details-theme=ascii"
     );
-    pb.directory(new File(directory));
+    pb.directory(new File(workspace));
     pb.redirectErrorStream(true);
     Process process = pb.start();
 
@@ -109,7 +111,7 @@ public class Submission {
     return result;
   }
 
-  public void report(String testOutput, String workspace) throws Exception {
+  public void report(String testOutput) throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output:" + testOutput);
@@ -141,7 +143,7 @@ public class Submission {
   }
 
 
-  public String studentReport(String testOutput, String workspace) throws Exception {
+  public String studentReport(String testOutput) throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output");
