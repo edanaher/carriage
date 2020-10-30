@@ -41,7 +41,7 @@ public class Main {
              throw new SubmissionException("Unknown assignment: " + submissionName);
 
            String temp = Files.createTempDirectory("autograder_test").toString();
-           //new File("autograder_test").mkdirP);
+           //new File("autograder_test").mkdir();
            //String temp = "autograder_test";
 
            Submission submission = new Submission(submissionName, temp);

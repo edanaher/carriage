@@ -9,12 +9,23 @@ it has diverged quite a bit and should be significantly more robust and easy to 
 
 Installing
 ----------
-TODO once I've installed it once.
+The Repl.it "version control" integration seems a bit flaky.  So ignore it and use manual git commands in the
+console:
+
+```
+rm Main.java
+git clone https://github.com/edanaher/carriage/ .
+```
+
+Run it once to install all the dependencies, and you should be ready to add an assignment.
+
 
 Creating a new assignment
 -------------------------
 To create a new assignment, simply create a new directory and test file under assignments.  This should use
 JUnit to run some automated tests; see the two examples (Addition and ForLoopExample) for guidance.
+
+Don't forget to change the name of the class inside the file to match the filename.
 
 Once the Test file exists, you should be able to submit files matching that filename using the template
 project.  For example, if you created `assignments/NewProject/NewProjectTest.java`, you can create a new
