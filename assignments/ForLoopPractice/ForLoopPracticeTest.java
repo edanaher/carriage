@@ -2,6 +2,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 
 import java.io.PrintStream;
@@ -24,6 +25,7 @@ void part_1_check_output_120() {
     ForLoopPractice.oneToTwenty();
     String studentPrinted = outputStreamCaptor.toString();
     System.out.println("Student printed: " + studentPrinted);
+    fail("The thingy failed");
     assertEquals("1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20", studentPrinted.trim());
 }
 

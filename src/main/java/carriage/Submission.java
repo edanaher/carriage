@@ -23,7 +23,7 @@ import carriage.SubmissionException;
 
 public class Submission {
   private static final Pattern TEST_OUTPUT_PATTERN = Pattern.compile("(\\d+) tests successful.*(\\d+) tests failed", Pattern.DOTALL);
-  private static final Pattern TEST_FAILURE_PATTERN = Pattern.compile("JUnit Jupiter:[^:]*Test:(.*?)\\(\\).*?expected: <(.*?)> but was: <(.*?)>", Pattern.DOTALL);
+  private static final Pattern TEST_FAILURE_PATTERN = Pattern.compile("JUnit Jupiter:[^:]*Test:(.*?)\\(\\).*?AssertionFailedError: (?:expected: <([^>]*)> but was: <([^>]*)>|(.*?)\n)", Pattern.DOTALL);
   private static final String REPORT_TEMPLATE = "### %s submitted %s at %s\n* **Passed:** %d\n* **Failed:** %d\n* **Score:** %d%%\n";
   private static final String STUDENT_REPORT_TEMPLATE = "Submitted successfully for %s.\n* Passed: %d\n* Failed: %d\n* Score: %d%%\n";
   private static final String FAILURE_TEMPLATE = "* Failed test: %s\n  Expected: <%s>\n  Actual:   <%s>\n";
@@ -153,9 +153,13 @@ public class Submission {
         String testName = failureMatcher.group(1);
         String expected = failureMatcher.group(2);
         String actual = failureMatcher.group(3);
+        String failedAssertion = failureMatcher.group(4);
         report += String.format("* Failed test: %s\n", testName);
         if (showFailedDetails)
-          report += String.format("  Expected: <%s>\n  Actual:   <%s>\n", expected, actual);
+          if(expected != null && actual != null)
+            report += String.format("  Expected: `%s`\n  Actual:   `%s`\n", expected, actual);
+          else
+            report += String.format("  Assertion failed: `%s`\n", failedAssertion);
       }
     }
 
