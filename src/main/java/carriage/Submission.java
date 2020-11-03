@@ -193,6 +193,7 @@ public class Submission {
 
     Files.copy(Paths.get(workspace, javaFileName()), Paths.get(dir.getAbsolutePath(), javaFileName()));
     Files.writeString(Paths.get("report.md"), report, StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+    Files.writeString(Paths.get("assignments", assignmentName, "report.md"), report, StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
     System.err.println("Submission received from " + sn + "\n" + report);
   }
