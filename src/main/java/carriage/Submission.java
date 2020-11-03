@@ -122,7 +122,7 @@ public class Submission {
     return result;
   }
 
-  public void report() throws Exception {
+  public String report(boolean forStudent, boolean showPassFailedScore, boolean showFailedCases, boolean showFailedDetails, boolean saveReport) throws Exception {
     Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
     if (!matcher.find())
       throw new IllegalStateException("Unable to match test output:" + testOutput);
@@ -138,51 +138,33 @@ public class Submission {
 
     String date = DATE_FORMAT.format(new Date());
 
-    String report = String.format(REPORT_TEMPLATE, sn, assignmentName, date, passed, failed, score);
-    // System.err.println(report);
+    String report = "";
+    if (forStudent)
+      report += String.format("Submitted successfully for %s.\n", sn);
+    else
+      report += String.format("### %s submitted %s at %s\n", sn, assignmentName, date);
 
-    Matcher failureMatcher = TEST_FAILURE_PATTERN.matcher(testOutput);
-    while(failureMatcher.find()) {
-      String testName = failureMatcher.group(1);
-      String expected = failureMatcher.group(2);
-      String actual = failureMatcher.group(3);
-      report += String.format(FAILURE_TEMPLATE, testName, expected, actual);
+    if (showPassFailedScore)
+      report += String.format("* **Passed:** %d\n* **Failed:** %d\n* **Score:** %d%%\n", passed, failed, score);
+
+    if (showFailedCases) {
+      Matcher failureMatcher = TEST_FAILURE_PATTERN.matcher(testOutput);
+      while(failureMatcher.find()) {
+        String testName = failureMatcher.group(1);
+        String expected = failureMatcher.group(2);
+        String actual = failureMatcher.group(3);
+        report += String.format("* Failed test: %s\n", testName);
+        if (showFailedDetails)
+          report += String.format("  Expected: <%s>\n  Actual:   <%s>\n", expected, actual);
+      }
     }
 
-
-    save(sn, report, workspace);
-  }
-
-
-  public String studentReport() throws Exception {
-    Matcher matcher = TEST_OUTPUT_PATTERN.matcher(testOutput);
-    if (!matcher.find())
-      throw new IllegalStateException("Unable to match test output");
-
-    int passed = Integer.parseInt(matcher.group(1));
-    int failed = Integer.parseInt(matcher.group(2));
-
-
-    int score = (int) ((((double) passed) / ((double) (passed + failed))) * 100);
-    // System.err.println("score: " + score);
-
-    String code = Files.readString(Paths.get(workspace, javaFileName()));
-    String sn = extractStudentNumber(code);
-
-    String date = DATE_FORMAT.format(new Date());
-
-    String report = String.format(STUDENT_REPORT_TEMPLATE, sn, passed, failed, score);
-    // System.err.println(report);
-
-    Matcher failureMatcher = TEST_FAILURE_PATTERN.matcher(testOutput);
-    while(failureMatcher.find()) {
-      String testName = failureMatcher.group(1);
-      report += String.format(STUDENT_FAILURE_TEMPLATE, testName);
-    }
-
+    if(saveReport)
+      save(sn, report, workspace);
 
     return report;
   }
+
 
   public void save(String sn, String report, String workspace) throws Exception {
     // slight sanity check on the directory to create...

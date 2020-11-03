@@ -50,9 +50,9 @@ public class Main {
            submission.copy(upload);
            submission.compile();
            submission.test();
-           submission.report();
+           submission.report(false, true, true, true, true);
 
-           String studentRep = submission.studentReport();
+           String studentRep = submission.report(true, true, true, false, false);
            ctx.contentType("text/plain");
            ctx.result(studentRep);
          } catch (SubmissionException ex) {
