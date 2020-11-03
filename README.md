@@ -32,6 +32,27 @@ project.  For example, if you created `assignments/NewProject/NewProjectTest.jav
 Repl.it project based off of the carriage template with NewProject.java (and ASSIGNMENT set to NewProject) in
 the .replit in that project), and submission should Just Work.
 
+Editing a assignment's tests
+----------------------------
+
+Just edit the ...Test.java file.  You don't need to restart the server; it will automatically grade every
+assignment against the newest test.
+
+Note that this means that if you edit a test mid-assignment, students will get the newer version immediately.
+So be careful with this!
+
+Running an assignment's tests
+-----------------------------
+
+There's no automated mechanism yet, but if you put a solution (or starter code) in the directory for an
+assignment, you can run the following in the console to compile and run it to see if the tests work:
+
+```
+cd assignments/AssignmentName
+javac -cp  ".:../../target/runtime-dependencies/*" AssignmentName.java AssignmentNameTest.java 
+java -jar ../../target/runtime-dependencies/junit-platform-console-standalone-1.7.0.jar -cp ".:../../target/runtime-dependencies/*" -c AssignmentNameTest
+```
+
 Potential future features
 -------------------------
 In no particular order:
@@ -45,3 +66,8 @@ are some nonobvious questions around how to determine main function, etc.
 - Better analytics on student submissions, rather than just report.md.
 - Better testing for tests; e.g., allowing a solution to be created with the tests for an assignment, and an
 admin UI that can run the solutiosn against the tests and verify that they match.
+- Better organization of submissions and reports
+  - Have a report for each project/student (or real UI based on database)
+  - Conveniently track each student's latest submission
+- Better parser of errors to handle other types of failed assertions and exceptions.
+- Sort tests in the reports so they're sanely ordered.  (Or make Junit run the in order?)
