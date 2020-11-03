@@ -24,7 +24,7 @@ import carriage.SubmissionException;
 public class Submission {
   private static final Pattern TEST_OUTPUT_PATTERN = Pattern.compile("(\\d+) tests successful.*(\\d+) tests failed", Pattern.DOTALL);
   private static final Pattern TEST_FAILURE_PATTERN = Pattern.compile("JUnit Jupiter:[^:]*Test:(.*?)\\(\\).*?expected: <(.*?)> but was: <(.*?)>", Pattern.DOTALL);
-  private static final String REPORT_TEMPLATE = "### %s submitted at %s\n* **Passed:** %d\n* **Failed:** %d\n* **Score:** %d%%\n";
+  private static final String REPORT_TEMPLATE = "### %s submitted %s at %s\n* **Passed:** %d\n* **Failed:** %d\n* **Score:** %d%%\n";
   private static final String STUDENT_REPORT_TEMPLATE = "Submitted successfully for %s.\n* Passed: %d\n* Failed: %d\n* Score: %d%%\n";
   private static final String FAILURE_TEMPLATE = "* Failed test: %s\n  Expected: <%s>\n  Actual:   <%s>\n";
   private static final String STUDENT_FAILURE_TEMPLATE = "* Failed test: %s\n";
@@ -138,7 +138,7 @@ public class Submission {
 
     String date = DATE_FORMAT.format(new Date());
 
-    String report = String.format(REPORT_TEMPLATE, sn, date, passed, failed, score);
+    String report = String.format(REPORT_TEMPLATE, sn, assignmentName, date, passed, failed, score);
     // System.err.println(report);
 
     Matcher failureMatcher = TEST_FAILURE_PATTERN.matcher(testOutput);
