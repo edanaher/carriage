@@ -2,6 +2,12 @@
 .idea/
 
 target/
+
+# These are generated for each autograder.
+report.md
+submissions/
+assignments/
+
 # repl.it likes to touch these...
 .classpath
 .project
