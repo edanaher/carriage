@@ -84,7 +84,7 @@ public class Submission {
       throw new SubmissionException("Error copying dependencies.  Please ask course staff to restart the autograder.");
   }
 
-  public String compile() throws Exception {
+  public void compile() throws Exception {
     // System.err.println("Compiling in " + workspace);
 
     ProcessBuilder pb = new ProcessBuilder();
@@ -96,9 +96,18 @@ public class Submission {
     pb.redirectErrorStream(true);
     Process process = pb.start();
 
-    String result = new String(process.getInputStream().readAllBytes(), StandardCharsets.US_ASCII);
     process.waitFor();
-    return result;
+    String result = new String(process.getInputStream().readAllBytes(), StandardCharsets.US_ASCII);
+    if (process.exitValue() != 0) {
+      String code = Files.readString(Paths.get(workspace, javaFileName()));
+      String sn = extractStudentNumber(code);
+
+      String date = DATE_FORMAT.format(new Date());
+      String report = String.format("### %s submitted %s at %s\n", sn, assignmentName, date);
+      report += String.format("* **Compilation error:**\n```\n%s\n```\n", result);
+      save(sn, report, workspace);
+      throw new SubmissionException("Compilation error.  Make sure your program runs locally and all methods from the assignment exist and are properly named.");
+    }
   }
 
   public String test() throws Exception {
