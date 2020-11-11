@@ -19,6 +19,8 @@ public class Main {
     app.get("/", ctx -> {
          ctx.contentType("text/html");
          ctx.result(Main.class.getResourceAsStream("index.html"));
+       }).get("/admin/kncukdmaiyj", ctx -> {
+         new carriage.Admin().render(ctx);
        })
        .post("/", ctx -> {
          try {
