@@ -104,7 +104,7 @@ public class Submission {
 
       String date = DATE_FORMAT.format(new Date());
       String report = String.format("### %s submitted %s at %s\n", sn, assignmentName, date);
-      report += String.format("* **Compilation error:**\n  ```\n%s\n```\n", result);
+      report += String.format("* **Compilation error:**\n  ```\n%s\n  ```\n", result);
       save(sn, report, workspace);
       throw new SubmissionException("Compilation error.  Make sure your program runs locally and all methods from the assignment exist and are properly named.");
     }
