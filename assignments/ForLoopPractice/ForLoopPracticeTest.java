@@ -1,5 +1,8 @@
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -9,6 +12,7 @@ import java.io.PrintStream;
 import java.io.ByteArrayOutputStream;
 
 
+@TestMethodOrder(OrderAnnotation.class)
 public class ForLoopPracticeTest {
 
 private final PrintStream standardOut = System.out;
@@ -20,6 +24,7 @@ public void setUp() {
 }
 
 @Test
+@Order(1)
 void part_1_check_output_120() {
     //System.out.println("Running test");
     ForLoopPractice.oneToTwenty();
@@ -31,6 +36,7 @@ void part_1_check_output_120() {
 
 
 @Test
+@Order(2)
 void part_2_check_output_even120() {
     ForLoopPractice.evenOneToTwenty();
     String studentPrinted = outputStreamCaptor.toString();
@@ -40,6 +46,7 @@ void part_2_check_output_even120() {
 
 
 @Test
+@Order(3)
 void part_3_check_output_sum120(){
   ForLoopPractice.sumOneToTwenty();
   String studentPrinted = outputStreamCaptor.toString();
@@ -48,6 +55,7 @@ void part_3_check_output_sum120(){
 }
   
 @Test
+@Order(4)
 void part_4_check_output_bla5times(){
   ForLoopPractice.blaFiveTimes();
   String studentPrinted = outputStreamCaptor.toString();
@@ -56,6 +64,7 @@ void part_4_check_output_bla5times(){
 }
 
 @Test 
+@Order(5)
 void part_5_check_output_120_noSpaceAtEnd() {
     ForLoopPractice.oneToTwenty();
     String studentPrinted = outputStreamCaptor.toString();
@@ -69,6 +78,7 @@ void part_5_check_output_120_noSpaceAtEnd() {
 }
 
 @Test
+@Order(6)
 void part_5_check_output_even120_noSpaceAtEnd() {
     ForLoopPractice.evenOneToTwenty();
     String studentPrinted = outputStreamCaptor.toString();
@@ -77,6 +87,7 @@ void part_5_check_output_even120_noSpaceAtEnd() {
 }
 
 @Test
+@Order(7)
 void part_5_check_output_bla5times_noSpaceAtEnd(){
   ForLoopPractice.blaFiveTimes();
   String studentPrinted = outputStreamCaptor.toString();
