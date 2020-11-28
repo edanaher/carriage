@@ -3,15 +3,21 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-if ! [ -d assignments/$1 ] ; then
-	echo "Assignment not found: $1"
+ASSIGNMENT=$1
+
+if [ -n "$2" ]; then
+  CHECKPOINT="-$2"
+fi
+
+if ! [ -d assignments/$ASSIGNMENT$CHECKPOINT ] ; then
+	echo "Assignment not found: $ASSIGNMENT$CHECKPOINT"
 	exit 1
 fi
 
 set -xe
-cd assignments/$1
+cd assignments/$ASSIGNMENT$CHECKPOINT
 
-javac -cp ".:../../target/runtime-dependencies/*" $1.java ${1}Test.java
+javac -cp ".:../../target/runtime-dependencies/*" $ASSIGNMENT.java ${ASSIGNMENT}Test.java
 
 java -jar ../../target/runtime-dependencies/junit-platform-console-standalone-1.7.0.jar -cp .:../../target/runtime-dependencies/* -c ${1}Test
 
