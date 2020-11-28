@@ -28,7 +28,7 @@ public class Main {
            if (upload == null)
              throw new SubmissionException("No file was uploaded");
 
-           if (upload.getSize() > 10_000)
+           if (upload.getSize() > 20_000)
              throw new SubmissionException("Uploaded file is too large");
 
            String filename = upload.getFilename();
