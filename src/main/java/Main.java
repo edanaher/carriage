@@ -41,6 +41,8 @@ public class Main {
            System.out.println("Checkpoint " + checkpoint);
 
            File assignmentDir = new File("assignments/" + submissionName + "/");
+           if(checkpoint != null)
+             assignmentDir = new File("assignments/" + submissionName + "-" + checkpoint + "/");
            System.out.println(assignmentDir.toString());
            if (!assignmentDir.exists())
              throw new SubmissionException("Unknown assignment: " + submissionName);
