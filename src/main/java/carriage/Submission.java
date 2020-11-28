@@ -33,15 +33,23 @@ public class Submission {
 
   private String assignmentName;
   private String workspace;
+  private String checkpoint;
+  private String dirName;
   private String testOutput;
 
   static {
     DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("America/New_York"));
   }
 
-  public Submission(String an, String ws) {
+  public Submission(String an, String cp, String ws) {
     assignmentName = an;
     workspace = ws;
+    checkpoint = cp;
+    System.out.println("checkpoint is" + checkpoint);
+    if(checkpoint == null)
+      dirName = assignmentName;
+    else
+      dirName = assignmentName + "-" + checkpoint;
   }
 
   private String javaFileName() {
