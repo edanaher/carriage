@@ -37,6 +37,9 @@ public class Main {
 
            String submissionName = filename.substring(0, filename.length() - ".java".length());
 
+           String checkpoint = ctx.formParam("checkpoint");
+           System.out.println("Checkpoint " + checkpoint);
+
            File assignmentDir = new File("assignments/" + submissionName + "/");
            System.out.println(assignmentDir.toString());
            if (!assignmentDir.exists())
@@ -46,7 +49,7 @@ public class Main {
            //new File("autograder_test").mkdir();
            //String temp = "autograder_test";
 
-           Submission submission = new Submission(submissionName, temp);
+           Submission submission = new Submission(submissionName, checkpoint, temp);
 
 
            submission.copy(upload);

@@ -62,7 +62,7 @@ public class Submission {
 
     // copy the test to the work directory
     String testTarget = Paths.get(workspace, testFileName()).toString();
-    String testSource = Paths.get("assignments/", assignmentName, testFileName()).toString();
+    String testSource = Paths.get("assignments/", dirName, testFileName()).toString();
     Files.copy(new File(testSource).toPath(), new File(testTarget).toPath());
 
     // copy the dependencies to the work directory
@@ -147,11 +147,14 @@ public class Submission {
 
     String date = DATE_FORMAT.format(new Date());
 
+    String checkpointString = "";
+    if(checkpoint != null)
+      checkpointString = " checkpoint " + checkpoint;
     String report = "";
     if (forStudent)
-      report += String.format("Submitted successfully for %s.\n", sn);
+      report += String.format("Submitted%s successfully for %s.\n", checkpointString, sn);
     else
-      report += String.format("### %s submitted %s at %s\n", sn, assignmentName, date);
+      report += String.format("### %s submitted %s%s at %s\n", sn, assignmentName, checkpointString, date);
 
     if (showPassFailedScore)
       report += String.format("* **Passed:** %d\n* **Failed:** %d\n* **Score:** %d%%\n", passed, failed, score);
@@ -192,7 +195,7 @@ public class Submission {
     if (!submissionsdir.exists())
       submissionsdir.mkdir();
 
-    String basedirName = "submissions/" + assignmentName + "/";
+    String basedirName = "submissions/" + dirName + "/";
     File basedir = new File(basedirName);
     if (!basedir.exists())
       basedir.mkdir();
@@ -211,7 +214,7 @@ public class Submission {
 
     Files.copy(Paths.get(workspace, javaFileName()), Paths.get(dir.getAbsolutePath(), javaFileName()));
     Files.writeString(Paths.get("report.md"), report, StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-    Files.writeString(Paths.get("assignments", assignmentName, "report.md"), report, StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+    Files.writeString(Paths.get("assignments", dirName, "report.md"), report, StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
 
     System.err.println("Submission received from " + sn + "\n" + report);
   }
