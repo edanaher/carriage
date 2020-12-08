@@ -22,7 +22,7 @@ import carriage.SubmissionException;
 
 
 public class Submission {
-  private static final Pattern TEST_OUTPUT_PATTERN = Pattern.compile("(\\d+) tests successful.*(\\d+) tests failed", Pattern.DOTALL);
+  private static final Pattern TEST_OUTPUT_PATTERN = Pattern.compile("(\\d+) tests successful.*?(\\d+) tests failed", Pattern.DOTALL);
   private static final Pattern TEST_FAILURE_PATTERN = Pattern.compile("JUnit Jupiter:[^:]*Test:(.*?)\\(\\).*?=> (?:\\S*AssertionFailedError: (?:(?:([^=]*) ==> )?expected: <([^>]*)> but was: <([^>]*)>|(.*?)\n)|(\\S*Exception: .*?)\n)", Pattern.DOTALL);
   private static final String REPORT_TEMPLATE = "### %s submitted %s at %s\n* **Passed:** %d\n* **Failed:** %d\n* **Score:** %d%%\n";
   private static final String STUDENT_REPORT_TEMPLATE = "Submitted successfully for %s.\n* Passed: %d\n* Failed: %d\n* Score: %d%%\n";
